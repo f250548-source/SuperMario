@@ -3,8 +3,8 @@
 16-bit x86 assembly (NASM, `.COM`), VGA Mode 13h, runs in DOSBox.
 
 ## Members
-- Member 1: engine (skeleton, video, frame buffer, map, sprites, camera, text, screens, keyboard and timer interrupts)
-- Member 2: game logic (`GameLoop`, physics, enemies, states) in `game.inc`
+- Haziq Salman: engine (skeleton, video, frame buffer, map, sprites, camera, text, screens, keyboard and timer interrupts)
+- Ayan Abdullah: game logic (`GameLoop`, physics, enemies, states) in `game.inc`
 
 ## Modules (files)
 | File | Contents |
