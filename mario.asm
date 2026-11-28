@@ -18,7 +18,7 @@
 %include "screens.inc"
 %include "keyboard.inc"
 %include "timer.inc"
-%include "gamestub.inc"                      ; Member 2: replace with game.inc
+%include "game.inc"                          ; Member 2: game logic (was gamestub.inc)
 
 ; ---------------------------------------------------------------------
 ; main

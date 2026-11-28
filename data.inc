@@ -28,7 +28,7 @@ msg_no_memory       db 'Not enough memory for the frame buffer.', 13, 10, '$'
 str_title           db 'SUPER MARIO ENGINE', 0
 str_start           db 'START GAME', 0
 str_exit            db 'EXIT', 0
-str_team            db 'BY MEMBER 1 AND MEMBER 2', 0
+str_team            db '   BY AAYAN AND HAZIQ', 0  ; 3 spaces keep it centred at x=64
 str_paused          db 'PAUSED', 0
 str_resume          db 'PRESS P TO RESUME', 0
 str_world           db 'WORLD 1-1', 0
