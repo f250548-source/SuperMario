@@ -77,14 +77,15 @@ flag_y              dw POLE_FLAG_TOP
 ; ---- enemies (Module 11) ----
 ; start list: type, column, row (enemies stand on row 9), 0 = end.
 ; G = Goomba, K = Koopa. Columns refer to the map in mapdata.inc:
-;   G12  walks towards the start: first stomp / side-hit test
-;   G22  between the 2-high pipe and the first pit (walks off ledges)
+;   G12, G15  a pair walking towards the start: stomp one, bounce onto
+;             the other in the same jump (stomp chain 100 + 200), or
+;             walk into one (hurt / death)
 ;   K30  turns at the pit edge (Koopas turn at platform edges)
 ;   G32  next to that Koopa: kick its shell into it (+500)
 ;   K45  after the second pit, under the bricks
 ;   G48  meets K45: enemies turn at each other
 enemy_start         db ET_GOOMBA, 12, HERO_STAND_ROW
-                    db ET_GOOMBA, 22, HERO_STAND_ROW
+                    db ET_GOOMBA, 15, HERO_STAND_ROW
                     db ET_KOOPA,  30, HERO_STAND_ROW
                     db ET_GOOMBA, 32, HERO_STAND_ROW
                     db ET_KOOPA,  45, HERO_STAND_ROW

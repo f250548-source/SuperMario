@@ -28,20 +28,22 @@ SCORE_MAX_LO        equ 423Fh
 STOMP_TABLE_LEN     equ 10                   ; stomps 1..10 give points
 
 ; ---------------- Hero physics, 8.8 fixed point, per frame ----------------
-; The BIOS timer gives ~18.2 frames/s, so values are tuned for that rate:
-; full jump ~61 px (3.8 tiles), clears a 3-tile pipe and a 3-tile pit.
-HERO_ACCEL          equ 0030h                ; 0.1875 px/frame^2
-HERO_FRICTION       equ 0020h                ; 0.125  (slides a little)
-HERO_BRAKE          equ 0060h                ; 0.375  (opposite key)
-HERO_WALK_MAX       equ 0200h                ; 2.0 px/frame
-HERO_RUN_MAX        equ 0300h                ; 3.0 px/frame (Left Shift)
-HERO_GRAVITY        equ 00C0h                ; 0.75 px/frame^2
-HERO_JUMP_VEL       equ 0A00h                ; 10.0 px/frame upwards
-HERO_JUMP_CUT       equ 0300h                ; 3.0 upward cut-off
-HERO_MAX_FALL       equ 0800h                ; 8 px/frame (< one tile)
-STOMP_BOUNCE        equ 0500h                ; bounce after a stomp
-STOMP_BOUNCE_HIGH   equ 0800h                ; ... with the jump key held
-DEATH_HOP_VEL       equ 0900h                ; death hop, about 48 px
+; Appendix A.5 gives values for ~30 frames/s. The BIOS timer gives 18.2
+; frames/s, so as A.5 asks, they are scaled to move the same per second:
+; speeds x 30/18.2 (1.65), accelerations x (30/18.2)^2 (2.72).
+;                                              A.5 value   scaled
+HERO_ACCEL          equ 0057h                ; 0.125   -> 0.34 px/frame^2
+HERO_FRICTION       equ 002Bh                ; 0.0625  -> 0.17
+HERO_BRAKE          equ 0090h                ; (none)  -> 0.56, > friction
+HERO_WALK_MAX       equ 0278h                ; 1.5     -> 2.47 px/frame
+HERO_RUN_MAX        equ 0420h                ; 2.5     -> 4.12 (Left Shift)
+HERO_GRAVITY        equ 00AEh                ; 0.25    -> 0.68 px/frame^2
+HERO_JUMP_VEL       equ 0940h                ; 5.5     -> 9.25 (~58 px high)
+HERO_JUMP_CUT       equ 0350h                ; 2.0     -> 3.3 upward cut-off
+HERO_MAX_FALL       equ 0698h                ; 4.0     -> 6.6 (< one tile)
+STOMP_BOUNCE        equ 04F0h                ; 3.0     -> 4.94
+STOMP_BOUNCE_HIGH   equ 0700h                ; jump key held: higher bounce
+DEATH_HOP_VEL       equ 0880h                ; death hop, about 48 px
 
 ; ---------------- Hero geometry ----------------
 HITBOX_LEFT         equ 2                    ; 12 px wide hitbox, centred
@@ -83,10 +85,10 @@ ES_SHELL            equ 3                    ; stationary shell
 ES_SLIDE            equ 4                    ; sliding shell
 DIR_RIGHT           equ 1
 DIR_LEFT            equ 0FFh                 ; -1 as a byte
-GOOMBA_SPEED        equ 0080h                ; 0.5 px/frame
-KOOPA_SPEED         equ 00C0h                ; 0.75 px/frame
-SHELL_SPEED         equ 0300h                ; 3 px/frame
-MUSHROOM_SPEED      equ 0100h                ; 1 px/frame
+GOOMBA_SPEED        equ 00D3h                ; 0.5  -> 0.82 px/frame (x 1.65)
+KOOPA_SPEED         equ 013Ch                ; 0.75 -> 1.24
+SHELL_SPEED         equ 04F1h                ; 3.0  -> 4.94
+MUSHROOM_SPEED      equ 01A6h                ; 1.0  -> 1.65
 FLAT_FRAMES         equ 18                   ; flat Goomba for about 1 s
 KICK_GRACE          equ 8                    ; frames a kicked shell ignores Mario
 MAX_ACTIVE_ENEMIES  equ 8
@@ -111,6 +113,12 @@ WIN_WALK_FRAMES     equ 18                   ; about 1 s, then he disappears
 WIN_DROP_X          equ (POLE_COL + 1) * TILE_SIZE - HITBOX_LEFT  ; off the base
 POP_FRAMES          equ 8                    ; ? coin pop-up
 POP_RISE            equ 3
+
+; ---------------- Debug keys (listed in the README, Section 7.7) ----------------
+KEY_DEBUG_TIME      equ 14h                  ; T: clock = 5 seconds
+KEY_DEBUG_COINS     equ 2Eh                  ; C: coins = 99
+DEBUG_TIME          equ 5
+DEBUG_COINS         equ 99
 
 ; ---------------- HUD layout ----------------
 HUD_SCORE_X         equ 8
@@ -243,6 +251,7 @@ StatePlaying:
             mov     word [game_state], STATE_TITLE
             jmp     .out
 .no_escape:
+            call    DebugKeys
             call    UpdateHero           ; 3. Mario, one axis at a time
             call    UpdateEntities       ; 4. enemies, shells, mushrooms
             call    UpdatePop
@@ -255,6 +264,32 @@ StatePlaying:
             call    PresentBuffer        ; 10. copy it to the screen
 .out:
             popa
+            ret
+
+; ---------------------------------------------------------------------
+; DebugKeys
+; Purpose : demo helpers allowed by Section 7.7 (listed in the README):
+;           T sets the clock to 5 seconds (time-out test), C sets the
+;           coins to 99 (the next coin gives the 100-coin life).
+; Inputs  : none (keys_cur/keys_old snapshot)
+; Outputs : clock, coins
+; Changes : nothing
+; ---------------------------------------------------------------------
+DebugKeys:
+            push    ax
+            push    word KEY_DEBUG_TIME
+            call    KeyHit
+            test    ax, ax
+            jz      .no_time
+            mov     word [clock], DEBUG_TIME
+.no_time:
+            push    word KEY_DEBUG_COINS
+            call    KeyHit
+            test    ax, ax
+            jz      .done
+            mov     word [coins], DEBUG_COINS
+.done:
+            pop     ax
             ret
 
 ; ---------------------------------------------------------------------
