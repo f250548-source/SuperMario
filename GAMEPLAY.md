@@ -38,8 +38,24 @@ The clock and `one_second_flag` are frozen in every state except PLAYING. Menu k
 `E_TYPE`(b) `E_STATE`(b) `E_X`(w) `E_XF`(b) `E_DIR`(b, +1/−1) `E_Y`(w) `E_YF`(b) `E_TIMER`(b) `E_VY`(w) `E_SPEED`(w) `E_GRACE`(b) `E_GROUND`(b).
 Enemies start from `enemy_start` (type, column, row): 4 Goombas and 2 Koopas. Mushrooms use free records.
 
-## Tuning (about 18.2 frames/s, the BIOS timer rate)
-Walk 2.0, run 3.0, acceleration 0.1875, friction 0.125, braking 0.375, gravity 0.75, jump 10.0 (about 61 px, roughly 3.8 tiles), cut-off 3.0, maximum fall 8 px/frame (less than one tile, so Mario cannot tunnel through tiles). At walking speed Mario can cross the 3-tile pit, clear the 3-tile pipe, hit a `?` block from the ground and climb the four stairs.
+## Tuning (Appendix A.5 scaled to 18.2 frames/s, the BIOS timer rate)
+Speeds are multiplied by 30/18.2 and accelerations by (30/18.2)²:
+
+| Value | Setting (px/frame) |
+|---|---|
+| Walk / run | 2.47 / 4.12 |
+| Acceleration / friction / braking | 0.34 / 0.17 / 0.56 |
+| Gravity | 0.68 |
+| Jump | 9.25 (about 58 px) |
+| Cut-off | 3.3 |
+| Maximum fall | 6.6 (less than one tile, so Mario cannot pass through floors) |
+| Stomp bounce | 4.94 |
+| Goomba / Koopa / shell / mushroom | 0.82 / 1.24 / 4.94 / 1.65 |
+
+At walking speed Mario can cross the 3-tile pit, clear the 3-tile pipe, hit a `?` block from the ground and climb the four stairs.
+
+## Debug keys
+`T` sets the clock to 5 seconds and `C` sets the coins to 99 (Section 7.7 allows debug keys that are listed in the README).
 
 ## Decisions on unclear rules
 - Every stomp from the 11th onwards gives +1 life (still capped at 99); the stomp table is never read past entry 10.
